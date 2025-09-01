@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Personal Growth Learning Module</title>
+  <style>
+    :root {
+      --bg: #0f1724;
+      --card: #0b1220;
+      --accent: #f59e0b;
+      --muted: #94a3b8;
+      --success: #10b981;
+      --danger: #ef4444;
+      --white: #e6eef8;
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg, #071428 0%, var(--bg) 60%);
+      color: var(--white);
+      overflow-x: hidden;
+    }
+    .wrap {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 28px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    h1 {
+      font-size: 24px;
+      margin: 0;
+    }
+    p.lead {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border: 1px solid rgba(255,255,255,0.04);
+      box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 20px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(2,6,23,0.7);
+    }
+    .section-title {
+      font-size: 18px;
+      margin: 0 0 12px;
+      color: var(--accent);
+    }
+    .progress-bar {
+      height: 8px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 8px 0;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #fb923c);
+      transition: width 0.5s ease;
+    }
+    .task-list {
+      display: grid;
+      gap: 12px;
+    }
+    .task {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 8px;
+    }
+    .task input[type="checkbox"] {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--muted);
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .task input[type="checkbox"]:checked {
+      background: var(--success);
+      border-color: var(--success);
+    }
+    .task label {
+      flex: 1;
+      font-size: 14px;
+    }
+    .stats-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .stats-table th, .stats-table td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .stats-table th {
+      color: var(--accent);
+    }
+    .stats-table .status-emoji {
+      font-size: 16px;
+    }
+    button {
+      appearance: none;
+      border: 0;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-primary {
+      background: linear-gradient(90deg, var(--accent), #fb923c);
+      color: #081127;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(245,158,11,0.2);
+    }
+    .btn-muted {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.06);
+      color: var(--muted);
+    }
+    .btn-muted:hover {
+      background: rgba(255,255,255,0.03);
+    }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(2,6,23,0.6);
+      animation: fadeIn 0.3s ease;
+    }
+    .modal {
+      background: var(--card);
+      padding: 22px;
+      border-radius: 12px;
+      max-width: 520px;
+      width: 92%;
+      border: 1px solid rgba(255,255,255,0.04);
+      transform: scale(0.8);
+      animation: modalPop 0.3s ease forwards;
+    }
+    .toast {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 32px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      background: rgba(2,6,23,0.9);
+      border: 1px solid rgba(255,255,255,0.04);
+      z-index: 9999;
+      opacity: 0;
+      color: var(--white);
+      font-size: 14px;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes modalPop {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    @media (max-width: 520px) {
+      .task-list { grid-template-columns: 1fr; }
+      .stats-table { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <h1>Personal Growth Learning Module</h1>
+      <p class="lead">Transform into a top 1% performer in 5 months with discipline and action.</p>
+    </div>
+
+  
+
+    <div class="card">
+      <h2 class="section-title">Strengths (Current vs. Required)</h2>
+      <table class="stats-table">
+        <thead>
+          <tr>
+            <th>Strength</th>
+            <th>Current</th>
+            <th>Required</th>
+            <th>Gap</th>
+            <th>Remarks</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Intelligence</td>
+            <td>7.5/10</td>
+            <td>8.5+</td>
+            <td class="status-emoji">⚠️ -1</td>
+            <td>Sharpen decision-making under pressure.</td>
+          </tr>
+          <tr>
+            <td>Self-Awareness</td>
+            <td>9/10</td>
+            <td>7+</td>
+            <td class="status-emoji">✅ +2</td>
+            <td>Deep insight, but act on it.</td>
+          </tr>
+          <tr>
+            <td>Adaptability</td>
+            <td>8/10</td>
+            <td>8</td>
+            <td class="status-emoji">✅ 0</td>
+            <td>Handles real-world shifts well.</td>
+          </tr>
+          <tr>
+            <td>Courage</td>
+            <td>7/10</td>
+            <td>7.5+</td>
+            <td class="status-emoji">⚠️ -0.5</td>
+            <td>Strong but retreats under fear.</td>
+          </tr>
+          <tr>
+            <td>Reflection Ability</td>
+            <td>8/10</td>
+            <td>7</td>
+            <td class="status-emoji">✅ +1</td>
+            <td>Convert into corrective action.</td>
+          </tr>
+          <tr>
+            <td>Risk-Taking</td>
+            <td>7/10</td>
+            <td>8</td>
+            <td class="status-emoji">⚠️ -1</td>
+            <td>Be more calculated in risks.</td>
+          </tr>
+          <tr>
+            <td>Vision</td>
+            <td>6/10</td>
+            <td>8.5+</td>
+            <td class="status-emoji">❌ -2.5</td>
+            <td>Needs execution roadmap.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2 class="section-title">Weaknesses (Severity vs. Target)</h2>
+      <table class="stats-table">
+        <thead>
+          <tr>
+            <th>Weakness</th>
+            <th>Current Severity</th>
+            <th>Target</th>
+            <th>Gap</th>
+            <th>Remarks</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Discipline</td>
+            <td>2/10</td>
+            <td>9/10</td>
+            <td class="status-emoji">❌ -7</td>
+            <td>#1 focus to avoid being average.</td>
+          </tr>
+          <tr>
+            <td>Execution</td>
+            <td>1.5/10</td>
+            <td>9/10</td>
+            <td class="status-emoji">❌ -7.5</td>
+            <td>Act on ideas daily.</td>
+          </tr>
+          <tr>
+            <td>Self-Control</td>
+            <td>1.5/10</td>
+            <td>8.5/10</td>
+            <td class="status-emoji">❌ -7</td>
+            <td>Kill impulse addiction.</td>
+          </tr>
+          <tr>
+            <td>Laziness</td>
+            <td>8/10</td>
+            <td>≤2/10</td>
+            <td class="status-emoji">❌ -6</td>
+            <td>Reels, naps costing success.</td>
+          </tr>
+          <tr>
+            <td>Focus</td>
+            <td>3/10</td>
+            <td>9/10</td>
+            <td class="status-emoji">❌ -6</td>
+            <td>Too many scattered goals.</td>
+          </tr>
+          <tr>
+            <td>Spending Control</td>
+            <td>3/10</td>
+            <td>8.5/10</td>
+            <td class="status-emoji">❌ -5.5</td>
+            <td>Overspending nullifies work.</td>
+          </tr>
+          <tr>
+            <td>Consistency</td>
+            <td>2/10</td>
+            <td>9/10</td>
+            <td class="status-emoji">❌ -7</td>
+            <td>Inconsistency kills progress.</td>
+          </tr>
+          <tr>
+            <td>Accountability</td>
+            <td>2/10</td>
+            <td>8/10</td>
+            <td class="status-emoji">❌ -6</td>
+            <td>Needs system or mentor.</td>
+          </tr>
+          <tr>
+            <td>Stress Handling</td>
+            <td>3/10</td>
+            <td>8/10</td>
+            <td class="status-emoji">❌ -5</td>
+            <td>Stop escaping discomfort.</td>
+          </tr>
+          <tr>
+            <td>Emotional Reactivity</td>
+            <td>6/10</td>
+            <td>≤2/10</td>
+            <td class="status-emoji">❌ -4</td>
+            <td>Emotions must guide, not break.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2 class="section-title">Contextual Data</h2>
+      <h3 style="font-size:16px;margin:0 0 8px">Weather (Aug-Dec 2025)</h3>
+      <table class="stats-table">
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th>Avg Temp (°C)</th>
+            <th>Remarks</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Aug</td><td>30</td><td>Plan indoor study sessions.</td></tr>
+          <tr><td>Sep</td><td>28</td><td>Comfortable for walking.</td></tr>
+          <tr><td>Oct</td><td>25</td><td>Ideal for outdoor activity.</td></tr>
+          <tr><td>Nov</td><td>20</td><td>Cooler, increase focus time.</td></tr>
+          <tr><td>Dec</td><td>15</td><td>Stay active despite cold.</td></tr>
+        </tbody>
+      </table>
+      <h3 style="font-size:16px;margin:16px 0 8px">Global IQ Context</h3>
+      <table class="stats-table">
+        <thead>
+          <tr>
+            <th>Region</th>
+            <th>Avg IQ</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>USA (All)</td><td>97–100</td><td>Strong in innovation.</td></tr>
+          <tr><td>UK</td><td>~100</td><td>Close to U.S.</td></tr>
+          <tr><td>Germany</td><td>~100–102</td><td>Stable education.</td></tr>
+          <tr><td>Japan</td><td>~105</td><td>Top in logic & math.</td></tr>
+          <tr><td>Singapore</td><td>~107–108</td><td>Highest globally.</td></tr>
+          <tr><td>India (All)</td><td>~82–88</td><td>Varies (rural/urban).</td></tr>
+          <tr><td>Indian-Americans</td><td>110–115</td><td>Tech-driven immigrants.</td></tr>
+          <tr><td>Jewish Americans</td><td>110–115</td><td>High influence, 0.2% of world.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <template id="reminderModal">
+    <div class="modal-backdrop" id="modalBackdrop">
+      <div class="modal" role="dialog" aria-modal="true">
+        <h2 style="margin:0 0 8px">Set Daily Reminder</h2>
+        <p class="small" style="margin:0 0 14px;color:var(--muted);">Choose a time for daily reminders to stay on track.</p>
+        <input type="time" id="reminderTime" value="20:00" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:var(--card);color:var(--white);">
+        <div style="margin-top:12px;display:flex;gap:10px;justify-content:flex-end;">
+          <button id="saveReminder" class="btn-primary">Save</button>
+          <button id="cancelReminder" class="btn-muted">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    (function() {
+      const DB_NAME = 'GrowthModule';
+      const STORE_NAME = 'progress';
+      const DB_VERSION = 1;
+
+      let db;
+      const state = {
+        goals: {
+          govtExam: { completed: false, progress: 0 },
+          aiJob: { completed: false, progress: 0 },
+          weightLoss: { completed: false, progress: 0 },
+          selfControl: { completed: false, progress: 0 },
+          stockMarket: { completed: false, progress: 0 }
+        },
+        reminderTime: '20:00',
+        notificationEnabled: false
+      };
+
+      function initDB() {
+        return new Promise((resolve, reject) => {
+          const request = indexedDB.open(DB_NAME, DB_VERSION);
+          request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+          };
+          request.onsuccess = (event) => {
+            db = event.target.result;
+            resolve(db);
+          };
+          request.onerror = () => reject('Failed to open IndexedDB');
+        });
+      }
+
+      async function loadState() {
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const store = tx.objectStore(STORE_NAME);
+        const request = store.get('userProgress');
+        return new Promise((resolve) => {
+          request.onsuccess = () => {
+            if (request.result) {
+              Object.assign(state, request.result);
+            }
+            resolve();
+          };
+          request.onerror = () => resolve();
+        });
+      }
+
+      async function saveState() {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        await store.put({ id: 'userProgress', ...state });
+        render();
+      }
+
+      function updateProgress() {
+        const totalGoals = Object.keys(state.goals).length;
+        const completed = Object.values(state.goals).filter(g => g.completed).length;
+        const progress = (completed / totalGoals) * 100;
+        document.getElementById('progressFill').style.width = `${progress}%`;
+      }
+
+      function render() {
+        Object.entries(state.goals).forEach(([key, goal]) => {
+          const checkbox = document.querySelector(`[data-goal="${key}"]`);
+          if (checkbox) checkbox.checked = goal.completed;
+        });
+        updateProgress();
+      }
+
+      function showModal() {
+        const tpl = document.getElementById('reminderModal');
+        const node = tpl.content.cloneNode(true);
+        document.body.appendChild(node);
+        const backdrop = document.getElementById('modalBackdrop');
+        const timeInput = backdrop.querySelector('#reminderTime');
+        timeInput.value = state.reminderTime;
+        backdrop.querySelector('#saveReminder').addEventListener('click', async () => {
+          state.reminderTime = timeInput.value;
+          state.notificationEnabled = true;
+          await saveState();
+          scheduleDailyNotification();
+          showToast('Reminder set for ' + state.reminderTime);
+          backdrop.remove();
+        });
+        backdrop.querySelector('#cancelReminder').addEventListener('click', () => {
+          backdrop.remove();
+        });
+        backdrop.addEventListener('click', (e) => {
+          if (e.target === backdrop) backdrop.remove();
+        });
+      }
+
+      function showToast(text) {
+        const el = document.createElement('div');
+        el.className = 'toast';
+        el.textContent = text;
+        el.setAttribute('role', 'status');
+        document.body.appendChild(el);
+        el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300 }).onfinish = () => {
+          setTimeout(() => {
+            el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300 }).onfinish = () => el.remove();
+          }, 2200);
+        };
+      }
+
+      function scheduleDailyNotification() {
+        if (!('Notification' in window) || !state.notificationEnabled) return;
+        Notification.requestPermission().then(permission => {
+          if (permission !== 'granted') return;
+          const now = new Date();
+          const [hours, minutes] = state.reminderTime.split(':').map(Number);
+          const next = new Date();
+          next.setHours(hours, minutes, 0, 0);
+          if (now > next) {
+            next.setDate(next.getDate() + 1);
+          }
+          const delay = next - now;
+          setTimeout(() => {
+            new Notification('Growth Module Reminder', {
+              body: 'Time to work on your goals! Check your progress.',
+              icon: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23f59e0b"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16zm-1-9h2v6h-2zm0-4h2v2h-2z"/></svg>'
+            });
+            scheduleDailyNotification();
+          }, delay);
+        });
+      }
+
+      async function init() {
+        try {
+          await initDB();
+          await loadState();
+          render();
+
+          // Attach event listeners
+          document.getElementById('setReminder').addEventListener('click', showModal);
+          document.querySelectorAll('.task input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', async () => {
+              const goalKey = checkbox.dataset.goal;
+              state.goals[goalKey].completed = checkbox.checked;
+              state.goals[goalKey].progress = checkbox.checked ? 100 : 0;
+              await saveState();
+              showToast(checkbox.checked ? 'Goal marked as completed!' : 'Goal unmarked.');
+            });
+          });
+
+          if (state.notificationEnabled) {
+            scheduleDailyNotification();
+          }
+        } catch (error) {
+          console.error('Initialization failed:', error);
+          showToast('Error initializing app. Please refresh.');
+        }
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>

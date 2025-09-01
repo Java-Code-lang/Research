@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Daily Chanakya Neeti Reminder</title>
+  <style>
+    :root {
+      --bg: #0f1724;
+      --card: #0b1220;
+      --accent: #f59e0b;
+      --muted: #94a3b8;
+      --success: #10b981;
+      --danger: #ef4444;
+      --white: #e6eef8;
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg, #071428 0%, var(--bg) 60%);
+      color: var(--white);
+      overflow-x: hidden;
+    }
+    .wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+    }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border: 1px solid rgba(255,255,255,0.04);
+      box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+      width: 100%;
+      max-width: 760px;
+      border-radius: 14px;
+      padding: 28px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(2,6,23,0.7);
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .logo {
+      width: 68px;
+      height: 68px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--accent), #fb923c);
+      font-weight: 700;
+      color: #081127;
+      font-size: 18px;
+    }
+    h1 {
+      font-size: 20px;
+      margin: 0;
+    }
+    p.lead {
+      margin: 6px 0 18px;
+      color: var(--muted);
+    }
+    .reminder-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .pill {
+      background: rgba(255,255,255,0.03);
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.03);
+      font-weight: 600;
+      transition: background 0.2s ease;
+    }
+    .pill:hover {
+      background: rgba(255,255,255,0.06);
+    }
+    .big-cta {
+      display: flex;
+      gap: 12px;
+      margin-top: 18px;
+    }
+    button {
+      appearance: none;
+      border: 0;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-primary {
+      background: linear-gradient(90deg, var(--accent), #fb923c);
+      color: #081127;
+      box-shadow: 0 6px 18px rgba(245,158,11,0.12);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(245,158,11,0.2);
+    }
+    .btn-muted {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.06);
+      color: var(--muted);
+    }
+    .btn-muted:hover {
+      background: rgba(255,255,255,0.03);
+      border-color: rgba(255,255,255,0.1);
+    }
+    .status {
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.02);
+      border: 1px dashed rgba(255,255,255,0.03);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      opacity: 0;
+      animation: fadeIn 0.5s ease forwards;
+    }
+    .status .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+    .success {
+      background: linear-gradient(90deg, rgba(16,185,129,0.18), rgba(16,185,129,0.06));
+      border: 1px solid rgba(16,185,129,0.16);
+    }
+    .danger {
+      background: linear-gradient(90deg, rgba(239,68,68,0.12), rgba(239,68,68,0.04));
+      border: 1px solid rgba(239,68,68,0.12);
+    }
+    .footer {
+      margin-top: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .small {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(2,6,23,0.6);
+      animation: fadeIn 0.3s ease;
+    }
+    .modal {
+      background: var(--card);
+      padding: 22px;
+      border-radius: 12px;
+      max-width: 520px;
+      width: 92%;
+      border: 1px solid rgba(255,255,255,0.04);
+      transform: scale(0.8);
+      animation: modalPop 0.3s ease forwards;
+    }
+    .confetti {
+      height: 8px;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23f59e0b" stroke-width="2"><path d="M4 4l6 6m0-6l-6 6m10-6l6 6m0-6l-6 6"/></svg>') repeat;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes modalPop {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+    @media (max-width: 520px) {
+      .header { flex-direction: row; align-items: center; }
+      .logo { width: 56px; height: 56px; }
+      .big-cta { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" role="application" aria-labelledby="title">
+      <div class="header">
+        <div class="logo">CN</div>
+        <div>
+          <h1 id="title">Daily Chanakya Neeti — Reminder</h1>
+          <p class="lead">A daily nudge to internalize Chanakya’s wisdom. Answer honestly: learned or cooked?</p>
+        </div>
+      </div>
+
+      <div style="margin-top:14px;">
+        <div class="reminder-row">
+          <div class="pill">Streak: <span id="streak">0</span> days</div>
+          <div class="pill">Last done: <span id="lastDone">never</span></div>
+          <div class="pill">Next reminder: <span id="nextRem">today 20:00</span></div>
+        </div>
+
+        <div class="big-cta">
+          <button class="btn-primary" id="openModal">Open Today’s Reminder</button>
+          <button class="btn-muted" id="snooze">Remind me later</button>
+        </div>
+
+        <div id="statusBox" class="status" aria-live="polite" style="display:none;">
+          <div class="dot" id="statusDot"></div>
+          <div id="statusText">You are on track.</div>
+        </div>
+
+        <div class="footer">
+          <div class="small">Tip: 5–10 minutes daily beats one-time binge. Use a notebook.</div>
+          <div class="small">Data stored securely in your browser’s app storage.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <template id="modalTpl">
+    <div class="modal-backdrop" id="modalBackdrop">
+      <div class="modal" role="dialog" aria-modal="true">
+        <div class="confetti"></div>
+        <h2 style="margin:0 0 8px 0">Did you learn Chanakya Neeti today?</h2>
+        <p class="small" style="margin-top:0;margin-bottom:14px;color:var(--muted);">Be honest — choose <strong>Yes</strong> if you read or practiced a lesson today, otherwise choose <strong>No (cooked)</strong>.</p>
+
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+          <button id="btnYes" class="btn-primary">Yes — I'm good</button>
+          <button id="btnNo" class="btn-muted">No — Cooked</button>
+        </div>
+
+        <div style="margin-top:12px;color:var(--muted);font-size:13px">
+          <label><input type="checkbox" id="enableNotif"> Enable daily notifications at 20:00</label>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    (function() {
+      const DB_NAME = 'ChanakyaNeeti';
+      const STORE_NAME = 'progress';
+      const DB_VERSION = 1;
+
+      let db;
+      const state = {
+        streak: 0,
+        last: null,
+        notificationEnabled: false,
+        nextReminder: null
+      };
+
+      // IndexedDB setup
+      function initDB() {
+        return new Promise((resolve, reject) => {
+          const request = indexedDB.open(DB_NAME, DB_VERSION);
+          request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+          };
+          request.onsuccess = (event) => {
+            db = event.target.result;
+            resolve(db);
+          };
+          request.onerror = () => reject('Failed to open IndexedDB');
+        });
+      }
+
+      async function loadState() {
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const store = tx.objectStore(STORE_NAME);
+        const request = store.get('userProgress');
+        return new Promise((resolve) => {
+          request.onsuccess = () => {
+            if (request.result) {
+              Object.assign(state, request.result);
+            }
+            resolve();
+          };
+          request.onerror = () => resolve(); // Continue even if load fails
+        });
+      }
+
+      async function saveState() {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        await store.put({ id: 'userProgress', ...state });
+        render();
+      }
+
+      function todayISO() {
+        const d = new Date();
+        return d.toISOString().slice(0, 10);
+      }
+
+      function niceDate(iso) {
+        if (!iso) return 'never';
+        const d = new Date(iso);
+        return d.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+      }
+
+      function getNextReminderTime() {
+        const now = new Date();
+        const next = new Date();
+        next.setHours(20, 0, 0, 0);
+        if (now > next) {
+          next.setDate(next.getDate() + 1);
+        }
+        return next;
+      }
+
+      function formatTime(date) {
+        return date.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+      }
+
+      function render() {
+        const streakEl = document.getElementById('streak');
+        const lastEl = document.getElementById('lastDone');
+        const nextEl = document.getElementById('nextRem');
+        const statusBox = document.getElementById('statusBox');
+        const statusText = document.getElementById('statusText');
+        const statusDot = document.getElementById('statusDot');
+
+        streakEl.textContent = state.streak;
+        lastEl.textContent = state.last ? niceDate(state.last) : 'never';
+        state.nextReminder = getNextReminderTime();
+        nextEl.textContent = `${state.nextReminder.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} ${formatTime(state.nextReminder)}`;
+
+        if (state.last === todayISO()) {
+          statusBox.style.display = 'flex';
+          statusBox.className = 'status success';
+          statusDot.style.background = getComputedStyle(document.documentElement).getPropertyValue('--success');
+          statusText.textContent = 'Great — you completed today\'s lesson!';
+        } else {
+          statusBox.style.display = 'flex';
+          statusBox.className = 'status danger';
+          statusDot.style.background = getComputedStyle(document.documentElement).getPropertyValue('--danger');
+          statusText.textContent = 'Pending — you have not marked today as done.';
+        }
+      }
+
+      async function markYes() {
+        const lastISO = state.last;
+        const nowISO = todayISO();
+        if (lastISO === nowISO) return;
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayISO = yesterday.toISOString().slice(0, 10);
+        if (lastISO === yesterdayISO) {
+          state.streak += 1;
+        } else {
+          state.streak = 1;
+        }
+        state.last = nowISO;
+        await saveState();
+        showToast('Excellent — streak updated!');
+      }
+
+      async function markNo() {
+        state.streak = 0;
+        state.last = null;
+        await saveState();
+        showToast('Okay — streak reset. Reset is a start.');
+      }
+
+      function showModal() {
+        const tpl = document.getElementById('modalTpl');
+        const node = tpl.content.cloneNode(true);
+        document.body.appendChild(node);
+        const backdrop = document.getElementById('modalBackdrop');
+        const notifCheckbox = backdrop.querySelector('#enableNotif');
+        notifCheckbox.checked = state.notificationEnabled;
+        notifCheckbox.addEventListener('change', async () => {
+          state.notificationEnabled = notifCheckbox.checked;
+          await saveState();
+          if (state.notificationEnabled) {
+            scheduleDailyNotification();
+          }
+        });
+        backdrop.querySelector('#btnYes').addEventListener('click', async () => {
+          await markYes();
+          backdrop.remove();
+        });
+        backdrop.querySelector('#btnNo').addEventListener('click', async () => {
+          await markNo();
+          backdrop.remove();
+        });
+        backdrop.addEventListener('click', (e) => {
+          if (e.target === backdrop) backdrop.remove();
+        });
+      }
+
+      function showToast(text) {
+        const el = document.createElement('div');
+        el.textContent = text;
+        el.setAttribute('role', 'status');
+        el.style.position = 'fixed';
+        el.style.left = '50%';
+        el.style.transform = 'translateX(-50%)';
+        el.style.bottom = '32px';
+        el.style.padding = '10px 16px';
+        el.style.borderRadius = '10px';
+        el.style.background = 'rgba(2,6,23,0.9)';
+        el.style.border = '1px solid rgba(255,255,255,0.04)';
+        el.style.zIndex = 9999;
+        el.style.opacity = '0';
+        document.body.appendChild(el);
+        el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300 }).onfinish = () => {
+          setTimeout(() => {
+            el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300 }).onfinish = () => el.remove();
+          }, 2200);
+        };
+      }
+
+      function scheduleDailyNotification() {
+        if (!('Notification' in window) || !state.notificationEnabled) return;
+        Notification.requestPermission().then(permission => {
+          if (permission !== 'granted') return;
+          const now = new Date();
+          const next = getNextReminderTime();
+          const delay = next - now;
+          setTimeout(() => {
+            new Notification('Chanakya Neeti Reminder', {
+              body: 'Time to learn today’s lesson! Open the app now.',
+              icon: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23f59e0b"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16zm-1-9h2v6h-2zm0-4h2v2h-2z"/></svg>'
+            });
+            scheduleDailyNotification(); // Reschedule
+          }, delay);
+        });
+      }
+
+      // Initialize
+      async function init() {
+        try {
+          await initDB();
+          await loadState();
+          render();
+          // Attach event listeners for buttons
+          const openModalBtn = document.getElementById('openModal');
+          const snoozeBtn = document.getElementById('snooze');
+          openModalBtn.addEventListener('click', showModal);
+          snoozeBtn.addEventListener('click', () => {
+            showToast('Reminder snoozed for 2 hours');
+            const now = new Date();
+            state.nextReminder = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+            render();
+          });
+          if (state.notificationEnabled) {
+            scheduleDailyNotification();
+          }
+          setInterval(render, 60000); // Update every minute
+        } catch (error) {
+          console.error('Initialization failed:', error);
+          showToast('Error initializing app. Please refresh.');
+        }
+      }
+
+      init();
+
+      // Expose for testing
+      window.chanakya = { state, markYes, markNo };
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self';">
+    <title>Learning Module: Competitive Realities</title>
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;700&family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'EB Garamond', serif;
+            background: #f8f1e9;
+            color: #2c2c2c;
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 250px;
+            background: #2c2c2c;
+            padding: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            overflow-y: auto;
+            border-right: 2px solid #d4a373;
+        }
+        .sidebar h2 {
+            color: #f4e4bc;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .sidebar ul {
+            list-style: none;
+        }
+        .sidebar a {
+            display: block;
+            color: #f4e4bc;
+            text-decoration: none;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            font-size: 1.1em;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            transition: background 0.3s, transform 0.3s;
+        }
+        .sidebar a:hover, .sidebar a.active {
+            background: #d4a373;
+            color: #2c2c2c;
+            transform: translateX(5px);
+        }
+        .main-content {
+            margin-left: 270px;
+            padding: 40px;
+            max-width: auto;
+        }
+        .hero {
+            position: relative;
+            background: url('https://images.unsplash.com/photo-1544716278-ca5e3f4ebf4c') no-repeat center center/cover;
+            color: #fff;
+            text-align: center;
+            padding: 100px 20px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+        }
+        .hero-content {
+            position: relative;
+        }
+        .hero h1 {
+            font-size: 2.8em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            font-family: 'Poppins', sans-serif;
+        }
+        .hero p {
+            font-size: 1.3em;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .hero img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 5px solid #f4e4bc;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            margin-top: 20px;
+            transition: transform 0.3s ease;
+        }
+        .hero img:hover {
+            transform: scale(1.1);
+        }
+        .content-section {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e6d5b8;
+        }
+        .content-section h2 {
+            font-size: 2em;
+            color: #8b5e3c;
+            border-bottom: 3px solid #d4a373;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-family: 'Poppins', sans-serif;
+        }
+        .content-section ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+        .content-section ul li {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            position: relative;
+            padding-left: 30px;
+        }
+        .content-section ul li::before {
+            content: '📖';
+            position: absolute;
+            left: 0;
+            font-size: 1.2em;
+            color: #8b5e3c;
+        }
+        .content-section ul ul {
+            padding-left: 30px;
+        }
+        .content-section ul ul li::before {
+            content: '✦';
+            color: #d4a373;
+        }
+        #passwordContainer {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #2c2c2c;
+            color: #f4e4bc;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        #passwordContainer input {
+            padding: 10px;
+            margin: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            width: 200px;
+        }
+        #passwordContainer button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #d4a373;
+            color: #2c2c2c;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        #passwordContainer button:hover {
+            background: #f4e4bc;
+        }
+        #passwordContainer h2 {
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 20px;
+        }
+        #warningMessage {
+            display: none;
+            color: #ff0000;
+            font-size: 1.5em;
+            font-weight: bold;
+            font-family: 'Poppins', sans-serif;
+            margin-top: 20px;
+            text-transform: uppercase;
+            text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+        }
+        .hidden {
+            display: none;
+        }
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 15px;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            .hero h1 {
+                font-size: 2em;
+            }
+            .hero p {
+                font-size: 1.1em;
+            }
+            .hero img {
+                width: 80px;
+                height: 80px;
+            }
+            .sidebar a {
+                font-size: 1em;
+                padding: 8px 10px;
+            }
+            .content-section {
+                padding: 20px;
+            }
+            #passwordContainer input {
+                width: 80%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="passwordContainer">
+        <h2>Enter Password</h2>
+        <input type="password" id="passwordInput" placeholder="Password">
+        <button id="submitButton">Submit</button>
+        <div id="warningMessage">Security Breach Detected! Access Denied. Fuck Off!</div>
+    </div>
+    <div class="container hidden" id="content">
+        <aside class="sidebar">
+            <h2>Deep Research On</h2>
+            <ul>
+                <li><a href="Research.html" class="active">Government Jobs</a></li>
+                 <li><a href="tracker.html" >Daily Tracker</a></li>
+                <li><a href="govt.html">List of Govt Jobs</a></li>
+                <li><a href="Chankya Neeti.html">Chankya Neeti</a></li>
+                <li><a href="Skills.html">AI, Cloud, Cybersecurity & Skills</a></li>
+                <li><a href="Stock.html">Stock Market Strategies</a></li>
+                <li><a href="Currency_Exchange_benefit.html">Currency Exchange Benefits</a></li>
+                <li><a href="Business.html">Small Business Ventures</a></li>
+                <li><a href="loan.html">Loan Prepayment</a></li>
+                <li><a href="GR.html">Great Replacement Theory</a></li>
+                <li><a href="BR.html">Fertility Rates</a></li>
+                <li><a href="Personal/About.html">My Strengths and Weakness</a></li>
+                <li><a href="Personal/canada_lesson.html">Lessons from Canada</a></li>
+                <li><a href="Capitalism/Capitalism.html">Capitalism Since 1800</a></li>
+            </ul>
+        </aside>
+        <main class="main-content">
+            <section class="content-section">
+                <h2>Government Jobs: A Competitive Odyssey</h2>
+                <ul>
+                    <li>Securing a government job is typically 10–100× more competitive than JEE or NEET, measured by applicant-to-seat ratios.</li>
+                    <li>Even “basic” roles face 10–40× higher competition than IIT or NEET, driven by limited vacancies against a vast applicant pool.</li>
+                    <li>Success Metrics:
+                        <ul>
+                            <li>JEE IIT: 1 out of 100 aspirants secures a seat.</li>
+                            <li>NEET Govt MBBS: 5 out of 100 achieve admission.</li>
+                            <li>Basic Govt Jobs (clerk, constable, SSC, railways, etc.): Success rate ~0.1–0.5% (1 in 200 to 1 in 800).</li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+        </main>
+    </div>
+    <script src="sc.js"></script>
+</body>
+</html>

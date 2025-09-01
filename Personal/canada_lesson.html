@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canada Lessons</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        body {
+            display: flex;
+            min-height: 100vh;
+            background-color: #f8fafc;
+        }
+        .sidebar {
+            width: 90px;
+            background: linear-gradient(180deg, #1e40af, #3b82f6);
+            color: #fff;
+            padding: 15px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            transition: width 0.3s ease;
+            position: relative;
+        }
+        .sidebar button {
+            width: 70px;
+            height: 90px;
+            background-color: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 15px;
+            color: #fff;
+            font-size: 0.65em;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            text-align: center;
+            text-transform: uppercase;
+            transition: transform 0.3s, background-color 0.3s, box-shadow 0.3s;
+        }
+        .sidebar button .icon {
+            font-size: 1.5em;
+        }
+        .sidebar button:hover {
+            background-color: rgba(255,255,255,0.2);
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+        .sidebar button.active {
+            background-color: #1d4ed8;
+            box-shadow: 0 0 15px rgba(29,78,216,0.7);
+        }
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        iframe {
+            width: 100%;
+            height: 100vh;
+            border: none;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                justify-content: center;
+                padding: 10px;
+                gap: 20px;
+            }
+            .sidebar button {
+                width: 60px;
+                height: 80px;
+                font-size: 0.6em;
+                border-radius: 12px;
+            }
+            .sidebar button .icon {
+                font-size: 1.3em;
+            }
+            .main-content {
+                padding: 10px;
+            }
+            iframe {
+                height: 80vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+       <button onclick="loadPage('Lessons_Part1.html')" class="active">
+    <span class="icon">Part 1</span>
+    <span>Lesson</span>
+</button>
+<button onclick="loadPage('Lessons_Part2.html')">
+    <span class="icon">Part 2</span>
+    <span>Lesson</span>
+</button>
+<button onclick="loadPage('Lessons_Part3.html')">
+    <span class="icon">Part 3</span>
+    <span>Lesson</span>
+</button>
+    </div>
+    <div class="main-content">
+        <iframe id="contentFrame" src="Lessons_Part1.html"></iframe>
+    </div>
+
+    <script>
+        const buttons = document.querySelectorAll('.sidebar button');
+        const iframe = document.getElementById('contentFrame');
+
+        function loadPage(url) {
+            iframe.src = url;
+            buttons.forEach(btn => btn.classList.remove('active'));
+            const activeButton = Array.from(buttons).find(btn => btn.onclick.toString().includes(url));
+            if (activeButton) {
+                activeButton.classList.add('active');
+            }
+        }
+
+        // Set initial active button
+        buttons[0].classList.add('active');
+    </script>
+</body>
+</html>

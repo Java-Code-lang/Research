@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Goal Tracker: Sep 1 - Sep 30</title>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --secondary: #34c759;
+            --bg: #f0f2f5;
+            --card-bg: #ffffff;
+            --text: #202124;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        p {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #5f6368;
+        }
+
+        .options, .storage {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            align-items: center;
+        }
+
+        label {
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        input[type="radio"], input[type="checkbox"] {
+            accent-color: var(--primary);
+        }
+
+        select, input[type="number"] {
+            padding: 0.5rem;
+            border: 1px solid #dadce0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        select:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+        }
+
+        .task {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 0.75rem 0;
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background: #1557b0;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .download-btn {
+            background: var(--secondary);
+        }
+
+        .download-btn:hover {
+            background: #2ea44f;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+            background: var(--card-bg);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #dadce0;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .bar {
+            height: 1.5rem;
+            background: linear-gradient(90deg, var(--secondary), #2ea44f);
+            color: white;
+            text-align: center;
+            line-height: 1.5rem;
+            border-radius: 0.25rem;
+            min-width: 50px;
+            transition: width 0.3s ease-in-out;
+        }
+
+        #chart {
+            margin-top: 2rem;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #dadce0;
+            margin: 2rem 0;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            .task {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Goal Tracker: Sep 1 - Sep 30</h1>
+        <p>Track your daily goals from Sep 1 to Sep 30. Select an option, log your hours, and download your progress as a text file.</p>
+
+        <div class="options">
+            <label>Choose Option:</label>
+            <input type="radio" name="option" value="1" id="opt1"><label for="opt1">Option 1 (Business Focus)</label>
+            <input type="radio" name="option" value="2" id="opt2"><label for="opt2">Option 2 (Job Search Focus)</label>
+        </div>
+
+        <div class="storage">
+            <input type="checkbox" id="allowStorage" checked><label for="allowStorage">Allow local storage on your PC</label>
+        </div>
+
+        <hr>
+
+        <label>Select Day:</label>
+        <select id="daySelect">
+            <option value="">-- Select a Day --</option>
+        </select>
+
+        <div id="tasks"></div>
+        <button id="saveBtn">Save Data for This Day</button>
+        <button id="downloadBtn" class="download-btn">Download Progress Data</button>
+
+        <hr>
+
+        <h2>Daily Report</h2>
+        <div id="report"></div>
+    </div>
+
+    <script>
+        const options = {
+            1: {
+                tasks: ['Stockmarket study', 'AI or skills', 'Business', 'UAE job visa'],
+                times: [0.5, 3, 5, 1] // in hours
+            },
+            2: {
+                tasks: ['Stockmarket study', 'AI or skills', 'Job search and confirmed got', 'UAE job visa'],
+                times: [0.5, 3, 5, 1] // in hours
+            }
+        };
+
+        let data = { option: 1, days: {} };
+        const STORAGE_KEY = 'goalTrackerSep2025';
+
+        function loadData() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                data = JSON.parse(stored);
+            }
+        }
+
+        function saveData() {
+            if (document.getElementById('allowStorage').checked) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            }
+        }
+
+        function downloadData() {
+            const lines = ['Goal Tracker Data: Sep 1 - Sep 30'];
+            lines.push(`Selected Option: ${data.option === 1 ? 'Business Focus' : 'Job Search Focus'}\n`);
+            
+            for (let day = 1; day <= 30; day++) {
+                if (data.days[day]) {
+                    lines.push(`Day ${day} (Sep ${day}):`);
+                    const tasks = options[data.option].tasks;
+                    const times = options[data.option].times;
+                    const actuals = data.days[day];
+                    for (let i = 0; i < tasks.length; i++) {
+                        lines.push(`  ${tasks[i]}: Expected ${times[i]} hrs, Actual ${actuals[i]} hrs, Progress ${times[i] > 0 ? (actuals[i] / times[i] * 100).toFixed(1) : 0}%`);
+                    }
+                    lines.push('');
+                }
+            }
+
+            const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'goal_tracker_sep2025.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Populate day select
+        const daySelect = document.getElementById('daySelect');
+        for (let i = 1; i <= 30; i++) {
+            const opt = document.createElement('option');
+            opt.value = i;
+            opt.textContent = `Day ${i} (Sep ${i})`;
+            daySelect.appendChild(opt);
+        }
+
+        // Load initial data
+        loadData();
+        document.getElementById(`opt${data.option}`).checked = true;
+
+        // Event listeners
+        document.querySelectorAll('input[name="option"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                data.option = parseInt(e.target.value);
+                saveData();
+                showTasks();
+            });
+        });
+
+        daySelect.addEventListener('change', showTasks);
+
+        document.getElementById('saveBtn').addEventListener('click', () => {
+            const day = daySelect.value;
+            if (!day) {
+                alert('Please select a day.');
+                return;
+            }
+            const actuals = [];
+            for (let i = 0; ; i++) {
+                const inp = document.getElementById(`task${i}`);
+                if (!inp) break;
+                actuals.push(parseFloat(inp.value) || 0);
+            }
+            data.days[day] = actuals;
+            saveData();
+            showReport(day);
+        });
+
+        document.getElementById('downloadBtn').addEventListener('click', downloadData);
+
+        function showTasks() {
+            const opt = data.option;
+            const day = daySelect.value;
+            if (!day) return;
+
+            const tasksDiv = document.getElementById('tasks');
+            tasksDiv.innerHTML = '<h3>Enter Actual Hours Spent:</h3>';
+
+            const tasks = options[opt].tasks;
+            const times = options[opt].times;
+            const actuals = data.days[day] || times.map(() => 0);
+
+            for (let i = 0; i < tasks.length; i++) {
+                const div = document.createElement('div');
+                div.className = 'task';
+                div.innerHTML = `<label>${tasks[i]} (Expected: ${times[i]} hrs)</label>
+                                 <input type="number" step="0.1" min="0" value="${actuals[i]}" id="task${i}">`;
+                tasksDiv.appendChild(div);
+            }
+
+            showReport(day);
+        }
+
+        function showReport(day) {
+            const opt = data.option;
+            const times = options[opt].times;
+            const tasks = options[opt].tasks;
+            const actuals = data.days[day] || times.map(() => 0);
+
+            const reportDiv = document.getElementById('report');
+            reportDiv.innerHTML = `<h3>Expectation vs Reality for Day ${day} (Sep ${day})</h3>`;
+
+            const table = document.createElement('table');
+            table.innerHTML = '<tr><th>Task</th><th>Expected (hrs)</th><th>Actual (hrs)</th><th>Progress (%)</th></tr>';
+
+            let totalExp = 0, totalAct = 0;
+            for (let i = 0; i < tasks.length; i++) {
+                const exp = times[i];
+                const act = actuals[i];
+                totalExp += exp;
+                totalAct += act;
+                const percent = exp > 0 ? (act / exp * 100).toFixed(1) : 0;
+                const row = `<tr><td>${tasks[i]}</td><td>${exp}</td><td>${act}</td><td><div class="bar" style="width: ${Math.min(100, percent)}%;">${percent}%</div></td></tr>`;
+                table.innerHTML += row;
+            }
+
+            const totalPercent = totalExp > 0 ? (totalAct / totalExp * 100).toFixed(1) : 0;
+            table.innerHTML += `<tr><td><strong>Total</strong></td><td><strong>${totalExp}</strong></td><td><strong>${totalAct}</strong></td><td><div class="bar" style="width: ${Math.min(100, totalPercent)}%;">${totalPercent}%</div></td></tr>`;
+
+            reportDiv.appendChild(table);
+
+            // Simple bar chart using canvas
+            const canvas = document.createElement('canvas');
+            canvas.id = 'chart';
+            canvas.width = 400;
+            canvas.height = 250;
+            reportDiv.appendChild(canvas);
+            drawChart(canvas, tasks, times, actuals);
+        }
+
+        function drawChart(canvas, tasks, exp, act) {
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const barWidth = 20;
+            const spacing = 60;
+            const maxH = 200;
+            const maxVal = Math.max(...exp.concat(act), 1);
+
+            // Draw bars
+            for (let i = 0; i < tasks.length; i++) {
+                const x = i * spacing + 50;
+
+                // Expected (blue)
+                const hExp = (exp[i] / maxVal) * maxH;
+                ctx.fillStyle = '#1a73e8';
+                ctx.fillRect(x, 250 - hExp, barWidth, hExp);
+
+                // Actual (green)
+                const hAct = (act[i] / maxVal) * maxH;
+                ctx.fillStyle = '#34c759';
+                ctx.fillRect(x + barWidth + 5, 250 - hAct, barWidth, hAct);
+
+                // Task label
+                ctx.fillStyle = '#202124';
+                ctx.font = '12px Inter';
+                ctx.fillText(tasks[i].slice(0, 10), x, 260);
+            }
+
+            // Legend
+            ctx.fillStyle = '#1a73e8';
+            ctx.fillRect(300, 10, 20, 20);
+            ctx.fillStyle = '#202124';
+            ctx.fillText('Expected', 325, 25);
+
+            ctx.fillStyle = '#34c759';
+            ctx.fillRect(300, 40, 20, 20);
+            ctx.fillStyle = '#202124';
+            ctx.fillText('Actual', 325, 55);
+        }
+    </script>
+</body>
+</html>
