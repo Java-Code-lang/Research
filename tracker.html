@@ -1,68 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Goal Tracker: Sep 1 - Sep 30</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Subtle card shadow + smooth transitions */
+    .card { @apply bg-white rounded-2xl shadow-md p-5 md:p-6; }
+    .pill { @apply px-3 py-1 rounded-full text-xs font-semibold; }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="max-w-5xl mx-auto p-6">
-    
-    <!-- Title -->
-    <h1 class="text-4xl font-bold text-center text-blue-600 mb-2">Goal Tracker: Sep 1 - Sep 30</h1>
-    <p class="text-center text-gray-500 mb-6">Track daily goals, compare expectation vs reality, and view summary progress.</p>
-    
-    <!-- Option Selection -->
-    <div class="bg-white shadow rounded-lg p-4 mb-6 flex flex-wrap gap-4 items-center justify-between">
-      <div>
-        <label class="font-semibold mr-3">Choose Option:</label>
-        <input type="radio" name="option" value="1" id="opt1" class="mr-1"> <label for="opt1">Business Focus</label>
-        <input type="radio" name="option" value="2" id="opt2" class="ml-4 mr-1"> <label for="opt2">Job Search Focus</label>
+<body class="bg-gray-50 text-gray-800">
+  <div class="max-w-6xl mx-auto px-4 py-8 md:py-10">
+    <!-- HERO -->
+    <section class="card mb-6 md:mb-8">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+        <div>
+          <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-blue-600">September Goal Tracker</h1>
+          <p class="mt-2 text-gray-600 max-w-2xl">Motive: Build consistency through clear <span class="font-semibold">Expectation vs Reality</span>. This tracker locks editing to <span class="font-semibold">today</span>, stores progress locally, and summarizes performance from <span class="font-semibold">Sep 1 → Sep 30</span>. Choose your focus (Business vs Job Search) and execute daily.</p>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <span id="monthRange" class="pill bg-blue-50 text-blue-700">Sep 1 – Sep 30, 2025</span>
+            <span id="todayPill" class="pill bg-green-50 text-green-700">Today: —</span>
+            <span id="daysLeftPill" class="pill bg-yellow-50 text-yellow-700">Days left: —</span>
+          </div>
+        </div>
+        <div class="w-full md:w-auto">
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2">
+              <input type="radio" name="option" id="opt1" value="1" class="w-4 h-4 accent-blue-600" />
+              <label for="opt1" class="text-sm">Option 1: <span class="font-semibold">Business Focus</span></label>
+            </div>
+            <div class="flex items-center gap-2">
+              <input type="radio" name="option" id="opt2" value="2" class="w-4 h-4 accent-blue-600" />
+              <label for="opt2" class="text-sm">Option 2: <span class="font-semibold">Job Search Focus</span></label>
+            </div>
+          </div>
+          <div class="mt-3 flex items-center gap-2">
+            <input type="checkbox" id="allowStorage" checked class="w-4 h-4 accent-blue-600" />
+            <label for="allowStorage" class="text-sm">Allow Local Storage</label>
+          </div>
+        </div>
       </div>
-      <div>
-        <input type="checkbox" id="allowStorage" checked class="mr-1"><label for="allowStorage">Allow Local Storage</label>
+    </section>
+
+    <!-- TODAY INPUT (auto-selected date; only today editable) -->
+    <section class="card mb-6 md:mb-8">
+      <h2 class="text-xl md:text-2xl font-bold text-gray-700">Today's Input</h2>
+      <p class="text-gray-500 text-sm mt-1">You can modify <span class="font-semibold">only today's</span> data. Past and future days are locked.</p>
+
+      <div id="todayTasks" class="mt-4 grid sm:grid-cols-2 gap-4"></div>
+
+      <div class="mt-4 flex flex-wrap items-center gap-3">
+        <button id="saveBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl shadow">Save Today's Data</button>
+        <span id="todayEditStatus" class="text-sm text-gray-500"></span>
       </div>
-    </div>
-    
-    <!-- Day & Task Input -->
-    <div class="bg-white shadow rounded-lg p-4 mb-6">
-      <label class="font-semibold block mb-2">Select Day:</label>
-      <select id="daySelect" class="border rounded px-3 py-2 mb-4 w-full max-w-xs"></select>
-      <div id="tasks" class="mb-4"></div>
-      <button id="saveBtn" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700">Save Data</button>
-    </div>
+    </section>
 
-    <!-- Summary Dashboard -->
-    <div class="bg-white shadow rounded-lg p-6 mb-6">
-      <h2 class="text-2xl font-bold mb-4 text-gray-700">Summary Dashboard</h2>
-      <div id="summaryCards" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
-      <canvas id="summaryChart" class="mt-6"></canvas>
-    </div>
+    <!-- SUMMARY DASHBOARD -->
+    <section class="card mb-6 md:mb-8">
+      <h2 class="text-xl md:text-2xl font-bold text-gray-700">Summary</h2>
+      <p class="text-gray-500 text-sm mt-1">Quick overview of today, progress so far (Sep 1 → today), and how many days remain.</p>
 
-    <!-- Daily Report -->
-    <div class="bg-white shadow rounded-lg p-6">
-      <h2 class="text-2xl font-bold mb-4 text-gray-700">Daily Report</h2>
-      <div id="report"></div>
-    </div>
+      <div id="summaryCards" class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4"></div>
 
+      <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="card">
+          <h3 class="font-semibold text-gray-700 mb-3">Today's Expectation vs Reality (per task)</h3>
+          <div class="h-64">
+            <canvas id="todayChart"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <h3 class="font-semibold text-gray-700 mb-3">Cumulative Totals (Sep 1 → today)</h3>
+          <div class="h-64">
+            <canvas id="cumulativeChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATUS / GOAL OUTCOME -->
+    <section class="card mb-6 md:mb-8">
+      <h2 class="text-xl md:text-2xl font-bold text-gray-700">Goal Outcome</h2>
+      <p class="text-gray-500 text-sm mt-1">Are you below target, on target, or failing the goal — based on the selected option.</p>
+      <div id="goalStatus" class="mt-4"></div>
+    </section>
+
+    <!-- DAILY REPORT (today) -->
+    <section class="card mb-6 md:mb-8">
+      <h2 class="text-xl md:text-2xl font-bold text-gray-700">Daily Report (Today)</h2>
+      <div id="dailyReport" class="mt-3 overflow-x-auto"></div>
+    </section>
+
+    <!-- HISTORICAL REPORT (Sep 1 → today) -->
+    <section class="card mb-6 md:mb-8">
+      <h2 class="text-xl md:text-2xl font-bold text-gray-700">Historical Report (Sep 1 → Today)</h2>
+      <div id="historicalReport" class="mt-3 overflow-x-auto"></div>
+    </section>
+
+    <!-- EXPECTATION vs REALITY INSIGHTS -->
+    <section class="card mb-10">
+      <h2 class="text-xl md:text-2xl font-bold text-gray-700">Expectation vs Reality — Insights</h2>
+      <p class="text-gray-500 text-sm mt-1">Highlights where you <span class="font-semibold">overworked</span> or <span class="font-semibold">underworked</span> sectors. All sectors need balanced attention; extreme skews are wasted effort.</p>
+      <div id="insights" class="mt-4 space-y-2"></div>
+    </section>
+
+    <footer class="text-center text-xs text-gray-400 pb-8">Data is stored only on your device via LocalStorage.</footer>
   </div>
 
   <script>
+    // ---------- CONFIG ----------
     const options = {
-      1: { tasks: ['Stockmarket study', 'AI or skills', 'Business', 'UAE job visa'], times: [0.5, 3, 5, 1] },
-      2: { tasks: ['Stockmarket study', 'AI or skills', 'Job search and confirmed got', 'UAE job visa'], times: [0.5, 3, 5, 1] }
+      1: { // Business Focus
+        tasks: ['Stockmarket study', 'AI or skills', 'Business', 'UAE job visa'],
+        times: [0.5, 3, 5, 1]
+      },
+      2: { // Job Search Focus
+        tasks: ['Stockmarket study', 'AI or skills', 'Job search and confirmed got', 'UAE job visa'],
+        times: [0.5, 3, 5, 1]
+      }
     };
 
-    let data = { option: 1, days: {} };
     const STORAGE_KEY = 'goalTrackerSep2025';
+    const YEAR = 2025;
+    const MONTH_INDEX = 8; // September is 8 (0-based)
+    const START_DAY = 1;
+    const END_DAY = 30;
+
+    // ---------- STATE ----------
+    let data = { option: 1, days: {} }; // days: { [dayNumber]: number[] }
 
     function loadData() {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) data = JSON.parse(stored);
+      const s = localStorage.getItem(STORAGE_KEY);
+      if (s) {
+        try { data = JSON.parse(s); } catch (e) {}
+      }
     }
     function saveData() {
       if (document.getElementById('allowStorage').checked) {
@@ -70,143 +146,372 @@
       }
     }
 
-    // Populate day select
-    const daySelect = document.getElementById('daySelect');
-    for (let i = 1; i <= 30; i++) {
-      const opt = document.createElement('option');
-      opt.value = i;
-      opt.textContent = `Day ${i} (Sep ${i})`;
-      daySelect.appendChild(opt);
+    // Date helpers
+    function todayInfo() {
+      const now = new Date();
+      const isSep2025 = now.getFullYear() === YEAR && now.getMonth() === MONTH_INDEX;
+      const day = isSep2025 ? now.getDate() : null;
+      return { now, isSep2025, day };
     }
 
-    // Load initial data
-    loadData();
-    document.getElementById(`opt${data.option}`).checked = true;
+    function clampDay(d) { return Math.max(START_DAY, Math.min(END_DAY, d)); }
 
-    // Event listeners
-    document.querySelectorAll('input[name="option"]').forEach(radio => {
-      radio.addEventListener('change', (e) => {
-        data.option = parseInt(e.target.value);
-        saveData();
-        showTasks();
-        updateSummary();
+    // ---------- UI POPULATION ----------
+    function initOptionRadios() {
+      document.getElementById(`opt${data.option}`).checked = true;
+      document.querySelectorAll('input[name="option"]').forEach(r => {
+        r.addEventListener('change', e => {
+          data.option = parseInt(e.target.value);
+          saveData();
+          renderAll();
+        });
       });
-    });
-
-    daySelect.addEventListener('change', showTasks);
-
-    document.getElementById('saveBtn').addEventListener('click', () => {
-      const day = daySelect.value;
-      if (!day) { alert('Please select a day.'); return; }
-      const actuals = [];
-      for (let i = 0; ; i++) {
-        const inp = document.getElementById(`task${i}`);
-        if (!inp) break;
-        actuals.push(parseFloat(inp.value) || 0);
-      }
-      data.days[day] = actuals;
-      saveData();
-      showReport(day);
-      updateSummary();
-    });
-
-    function showTasks() {
-      const opt = data.option;
-      const day = daySelect.value;
-      if (!day) return;
-      const tasksDiv = document.getElementById('tasks');
-      tasksDiv.innerHTML = '<h3 class="font-semibold mb-2">Enter Actual Hours Spent:</h3>';
-      const tasks = options[opt].tasks;
-      const times = options[opt].times;
-      const actuals = data.days[day] || times.map(() => 0);
-
-      for (let i = 0; i < tasks.length; i++) {
-        const div = document.createElement('div');
-        div.className = 'flex items-center gap-3 mb-2';
-        div.innerHTML = `<label class="w-64">${tasks[i]} (Expected: ${times[i]} hrs)</label>
-                         <input type="number" step="0.1" min="0" value="${actuals[i]}" id="task${i}" class="border rounded px-2 py-1 w-24">`;
-        tasksDiv.appendChild(div);
-      }
-      showReport(day);
     }
 
-    function showReport(day) {
+    function setHeroPills() {
+      const { isSep2025, day } = todayInfo();
+      const todayPill = document.getElementById('todayPill');
+      const daysLeftPill = document.getElementById('daysLeftPill');
+
+      if (!isSep2025) {
+        todayPill.textContent = 'Today: Outside Sep 2025';
+        daysLeftPill.textContent = 'Days left: —';
+        return;
+      }
+
+      todayPill.textContent = `Today: Sep ${day}, 2025`;
+      const daysLeft = Math.max(0, END_DAY - day);
+      daysLeftPill.textContent = `Days left: ${daysLeft}`;
+    }
+
+    function renderTodayInputs() {
+      const { isSep2025, day } = todayInfo();
+      const tasksDiv = document.getElementById('todayTasks');
+      tasksDiv.innerHTML = '';
+
+      const opt = data.option;
+      const tasks = options[opt].tasks;
+      const times = options[opt].times;
+
+      // Determine which day is editable
+      let editable = false;
+      let dayNum = null;
+
+      if (isSep2025 && day >= START_DAY && day <= END_DAY) {
+        editable = true;
+        dayNum = day;
+      }
+
+      // If not in Sep 2025 window, still show the task list as read-only with zeros or saved values for Sep 1
+      if (!editable) {
+        dayNum = clampDay(START_DAY);
+      }
+
+      const actuals = data.days[dayNum] || times.map(() => 0);
+
+      for (let i = 0; i < tasks.length; i++) {
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-3';
+        row.innerHTML = `
+          <div class="w-64 text-sm">
+            <div class="font-semibold">${tasks[i]}</div>
+            <div class="text-gray-500">Expected: ${times[i]} hrs</div>
+          </div>
+          <input type="number" step="0.1" min="0" value="${actuals[i]}" id="task${i}" class="border rounded-xl px-3 py-2 w-28 ${editable ? '' : 'bg-gray-100'}" ${editable ? '' : 'disabled'} />
+        `;
+        tasksDiv.appendChild(row);
+      }
+
+      const status = document.getElementById('todayEditStatus');
+      if (editable) {
+        status.textContent = `Editing Sep ${dayNum}.`;
+      } else {
+        status.textContent = 'Locked: You can edit only when today is within Sep 1–30, 2025.';
+      }
+
+      const saveBtn = document.getElementById('saveBtn');
+      saveBtn.disabled = !editable;
+      saveBtn.classList.toggle('opacity-50', !editable);
+
+      saveBtn.onclick = () => {
+        if (!editable) return;
+        const arr = [];
+        for (let i = 0; i < tasks.length; i++) {
+          const v = parseFloat(document.getElementById(`task${i}`).value) || 0;
+          arr.push(v);
+        }
+        data.days[dayNum] = arr;
+        saveData();
+        renderAll();
+      };
+    }
+
+    // ---------- REPORTS & CHARTS ----------
+    function getDayTotals(day, opt) {
+      const times = options[opt].times;
+      const actuals = data.days[day] || times.map(() => 0);
+      const exp = times.reduce((a,b)=>a+b,0);
+      const act = actuals.reduce((a,b)=>a+b,0);
+      const pct = exp > 0 ? (act/exp*100) : 0;
+      return { exp, act, pct, actuals };
+    }
+
+    function renderSummary() {
+      const { isSep2025, day } = todayInfo();
       const opt = data.option;
       const times = options[opt].times;
       const tasks = options[opt].tasks;
-      const actuals = data.days[day] || times.map(() => 0);
-      const reportDiv = document.getElementById('report');
-      reportDiv.innerHTML = `<h3 class="font-semibold mb-3">Expectation vs Reality for Day ${day} (Sep ${day})</h3>`;
 
-      let html = `<table class="w-full border-collapse">
-                  <thead><tr class="bg-gray-100 text-left">
-                  <th class="p-2">Task</th><th class="p-2">Expected</th><th class="p-2">Actual</th><th class="p-2">Progress</th></tr></thead><tbody>`;
-      let totalExp = 0, totalAct = 0;
-      for (let i = 0; i < tasks.length; i++) {
-        const exp = times[i], act = actuals[i];
-        totalExp += exp; totalAct += act;
-        const percent = exp > 0 ? (act / exp * 100).toFixed(1) : 0;
-        const color = percent < 50 ? 'bg-red-500' : percent < 80 ? 'bg-yellow-500' : 'bg-green-500';
-        html += `<tr class="border-t"><td class="p-2">${tasks[i]}</td><td class="p-2">${exp}</td><td class="p-2">${act}</td>
-                 <td class="p-2"><div class="h-4 ${color} text-white text-xs text-center rounded" style="width:${Math.min(percent,100)}%">${percent}%</div></td></tr>`;
+      // Today metrics
+      const todayDay = (isSep2025 && day >= START_DAY && day <= END_DAY) ? day : clampDay(START_DAY);
+      const { exp: tExp, act: tAct, pct: tPct, actuals: tActuals } = getDayTotals(todayDay, opt);
+
+      // Cumulative metrics (Sep 1 → today)
+      const upto = (isSep2025 && day >= START_DAY) ? Math.min(day, END_DAY) : 0;
+      let cExp=0, cAct=0; const expSeries=[], actSeries=[], labels=[];
+      for (let d = START_DAY; d <= (upto||0); d++) {
+        const { exp, act } = getDayTotals(d, opt);
+        cExp += exp; cAct += act;
+        expSeries.push(cExp); actSeries.push(cAct);
+        labels.push(`Sep ${d}`);
       }
-      const totalPercent = totalExp > 0 ? (totalAct / totalExp * 100).toFixed(1) : 0;
-      const totalColor = totalPercent < 50 ? 'bg-red-500' : totalPercent < 80 ? 'bg-yellow-500' : 'bg-green-500';
-      html += `<tr class="font-bold border-t"><td class="p-2">Total</td><td class="p-2">${totalExp}</td><td class="p-2">${totalAct}</td>
-               <td class="p-2"><div class="h-4 ${totalColor} text-white text-xs text-center rounded" style="width:${Math.min(totalPercent,100)}%">${totalPercent}%</div></td></tr>`;
-      html += '</tbody></table>';
-      reportDiv.innerHTML += html;
-    }
-
-    function updateSummary() {
-      const opt = data.option;
-      const times = options[opt].times;
-      let totalExp = 0, totalAct = 0;
-      const expTotals = [], actTotals = [];
-
-      for (let d = 1; d <= 30; d++) {
-        const actuals = data.days[d] || times.map(() => 0);
-        const expDay = times.reduce((a, b) => a + b, 0);
-        const actDay = actuals.reduce((a, b) => a + b, 0);
-        expTotals.push(expDay);
-        actTotals.push(actDay);
-        totalExp += expDay;
-        totalAct += actDay;
-      }
-
-      const avgPercent = totalExp > 0 ? (totalAct / totalExp * 100).toFixed(1) : 0;
 
       // Cards
+      const daysLeft = (isSep2025 && day <= END_DAY) ? Math.max(0, END_DAY - day) : END_DAY;
+      const avgPct = cExp>0 ? (cAct/cExp*100) : 0;
       document.getElementById('summaryCards').innerHTML = `
-        <div class="p-4 bg-blue-100 rounded shadow text-center">
-          <h3 class="text-lg font-bold">Total Expected</h3><p class="text-2xl">${totalExp} hrs</p>
+        <div class="card text-center">
+          <div class="text-sm text-gray-500">Today's Total</div>
+          <div class="text-2xl font-bold mt-1">${tAct.toFixed(1)} / ${tExp.toFixed(1)} hrs</div>
+          <div class="text-sm mt-1 ${tPct<50?'text-red-600':tPct<80?'text-yellow-600':'text-green-600'}">${tPct.toFixed(1)}% of target</div>
         </div>
-        <div class="p-4 bg-green-100 rounded shadow text-center">
-          <h3 class="text-lg font-bold">Total Actual</h3><p class="text-2xl">${totalAct} hrs</p>
+        <div class="card text-center">
+          <div class="text-sm text-gray-500">Cumulative (Sep 1 → ${upto?`Sep ${upto}`:'—'})</div>
+          <div class="text-2xl font-bold mt-1">${cAct.toFixed(1)} / ${cExp.toFixed(1)} hrs</div>
+          <div class="text-sm mt-1 ${avgPct<50?'text-red-600':avgPct<80?'text-yellow-600':'text-green-600'}">${avgPct.toFixed(1)}% overall</div>
         </div>
-        <div class="p-4 bg-yellow-100 rounded shadow text-center">
-          <h3 class="text-lg font-bold">Average Progress</h3><p class="text-2xl">${avgPercent}%</p>
+        <div class="card text-center">
+          <div class="text-sm text-gray-500">Days Left</div>
+          <div class="text-2xl font-bold mt-1">${daysLeft}</div>
+          <div class="text-sm mt-1">of 30 days total</div>
         </div>`;
 
-      // Chart
-      const ctx = document.getElementById('summaryChart').getContext('2d');
-      if (window.summaryChart) window.summaryChart.destroy();
-      window.summaryChart = new Chart(ctx, {
-        type: 'line',
+      // Charts
+      drawTodayChart(tasks, times, tActuals);
+      drawCumulativeChart(labels, expSeries, actSeries);
+    }
+
+    let todayChart, cumulativeChart;
+    function drawTodayChart(tasks, expTimes, actuals) {
+      const ctx = document.getElementById('todayChart').getContext('2d');
+      if (todayChart) todayChart.destroy();
+      todayChart = new Chart(ctx, {
+        type: 'bar',
         data: {
-          labels: Array.from({length: 30}, (_, i) => `Sep ${i+1}`),
+          labels: tasks,
           datasets: [
-            { label: 'Expected Hours', data: expTotals, borderColor: '#1a73e8', fill: false },
-            { label: 'Actual Hours', data: actTotals, borderColor: '#34c759', fill: false }
+            { label: 'Expected', data: expTimes, backgroundColor: 'rgba(26,115,232,0.6)' },
+            { label: 'Actual', data: actuals, backgroundColor: 'rgba(52,199,89,0.6)' }
           ]
         },
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+        options: { responsive:true, maintainAspectRatio:false, scales:{ y:{ beginAtZero:true } } }
       });
     }
 
-    // Init
-    if (daySelect.value) showTasks();
-    updateSummary();
+    function drawCumulativeChart(labels, expSeries, actSeries) {
+      const ctx = document.getElementById('cumulativeChart').getContext('2d');
+      if (cumulativeChart) cumulativeChart.destroy();
+      cumulativeChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Expected Total', data: expSeries, borderColor: '#1a73e8', backgroundColor:'rgba(26,115,232,0.15)', fill:true },
+            { label: 'Actual Total', data: actSeries, borderColor: '#34c759', backgroundColor:'rgba(52,199,89,0.15)', fill:true }
+          ]
+        },
+        options: { responsive:true, maintainAspectRatio:false, scales:{ y:{ beginAtZero:true } } }
+      });
+    }
+
+    function renderGoalStatus() {
+      const { isSep2025, day } = todayInfo();
+      const opt = data.option;
+      const upto = (isSep2025 && day >= START_DAY) ? Math.min(day, END_DAY) : 0;
+      let cExp=0, cAct=0;
+      for (let d = START_DAY; d <= (upto||0); d++) {
+        const { exp, act } = getDayTotals(d, opt);
+        cExp += exp; cAct += act;
+      }
+      const pct = cExp>0 ? (cAct/cExp*100) : 0;
+      let verdict = '';
+      let badge = '';
+      if (pct >= 95) { verdict = 'You are on track or ahead of goal!'; badge = 'bg-green-100 text-green-700'; }
+      else if (pct >= 80) { verdict = 'Close to target — keep pushing!'; badge = 'bg-yellow-100 text-yellow-700'; }
+      else { verdict = 'Below target — adjust plan today.'; badge = 'bg-red-100 text-red-700'; }
+
+      document.getElementById('goalStatus').innerHTML = `
+        <div class="flex flex-col md:flex-row items-start md:items-center gap-3">
+          <span class="pill ${badge}">Overall ${pct.toFixed(1)}%</span>
+          <p class="text-sm">${verdict} (Option: <span class="font-semibold">${opt===1?'Business Focus':'Job Search Focus'}</span>)</p>
+        </div>`;
+    }
+
+    function renderDailyReport() {
+      const { isSep2025, day } = todayInfo();
+      const opt = data.option;
+      const times = options[opt].times;
+      const tasks = options[opt].tasks;
+      const todayDay = (isSep2025 && day >= START_DAY && day <= END_DAY) ? day : clampDay(START_DAY);
+      const actuals = data.days[todayDay] || times.map(() => 0);
+
+      let totalExp=0,totalAct=0; let rows='';
+      for (let i=0;i<tasks.length;i++){
+        const exp=times[i], act=actuals[i];
+        totalExp+=exp; totalAct+=act;
+        const pct = exp? (act/exp*100):0;
+        const color = pct<50?'bg-red-500':(pct<80?'bg-yellow-500':'bg-green-500');
+        rows += `<tr class="border-t">
+          <td class="p-2">${tasks[i]}</td>
+          <td class="p-2">${exp}</td>
+          <td class="p-2">${act}</td>
+          <td class="p-2"><div class="h-3 ${color} rounded" style="width:${Math.min(100,pct).toFixed(1)}%"></div></td>
+          <td class="p-2 text-sm">${pct.toFixed(1)}%</td>
+        </tr>`;
+      }
+      const totalPct = totalExp? (totalAct/totalExp*100):0;
+      const tColor = totalPct<50?'bg-red-600':(totalPct<80?'bg-yellow-600':'bg-green-600');
+
+      const table = `
+        <table class="min-w-full text-sm">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="p-2 text-left">Task</th>
+              <th class="p-2 text-left">Expected (hrs)</th>
+              <th class="p-2 text-left">Actual (hrs)</th>
+              <th class="p-2 text-left">Progress</th>
+              <th class="p-2 text-left">%</th>
+            </tr>
+          </thead>
+          <tbody>${rows}
+            <tr class="font-semibold border-t">
+              <td class="p-2">Total</td>
+              <td class="p-2">${totalExp.toFixed(1)}</td>
+              <td class="p-2">${totalAct.toFixed(1)}</td>
+              <td class="p-2"><div class="h-3 ${tColor} rounded" style="width:${Math.min(100,totalPct).toFixed(1)}%"></div></td>
+              <td class="p-2">${totalPct.toFixed(1)}%</td>
+            </tr>
+          </tbody>
+        </table>`;
+      document.getElementById('dailyReport').innerHTML = table;
+    }
+
+    function renderHistoricalReport() {
+      const { isSep2025, day } = todayInfo();
+      const opt = data.option;
+      const upto = (isSep2025 && day >= START_DAY) ? Math.min(day, END_DAY) : 0;
+
+      if (!upto) {
+        document.getElementById('historicalReport').innerHTML = '<div class="text-sm text-gray-500">No historical data yet.</div>';
+        return;
+      }
+
+      let rows='';
+      let grandExp=0, grandAct=0;
+      for (let d=START_DAY; d<=upto; d++){
+        const { exp, act, pct } = getDayTotals(d, opt);
+        grandExp+=exp; grandAct+=act;
+        const color = pct<50?'bg-red-500':(pct<80?'bg-yellow-500':'bg-green-500');
+        rows += `<tr class="border-t">
+          <td class="p-2">Sep ${d}</td>
+          <td class="p-2">${exp.toFixed(1)}</td>
+          <td class="p-2">${act.toFixed(1)}</td>
+          <td class="p-2"><div class="h-3 ${color} rounded" style="width:${Math.min(100,pct).toFixed(1)}%"></div></td>
+          <td class="p-2 text-sm">${pct.toFixed(1)}%</td>
+        </tr>`;
+      }
+      const gPct = grandExp? (grandAct/grandExp*100):0;
+      const gColor = gPct<50?'bg-red-600':(gPct<80?'bg-yellow-600':'bg-green-600');
+
+      const table = `
+        <table class="min-w-full text-sm">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="p-2 text-left">Day</th>
+              <th class="p-2 text-left">Expected (hrs)</th>
+              <th class="p-2 text-left">Actual (hrs)</th>
+              <th class="p-2 text-left">Progress</th>
+              <th class="p-2 text-left">%</th>
+            </tr>
+          </thead>
+          <tbody>${rows}
+            <tr class="font-semibold border-t">
+              <td class="p-2">Total (Sep 1 → Sep ${upto})</td>
+              <td class="p-2">${grandExp.toFixed(1)}</td>
+              <td class="p-2">${grandAct.toFixed(1)}</td>
+              <td class="p-2"><div class="h-3 ${gColor} rounded" style="width:${Math.min(100,gPct).toFixed(1)}%"></div></td>
+              <td class="p-2">${gPct.toFixed(1)}%</td>
+            </tr>
+          </tbody>
+        </table>`;
+      document.getElementById('historicalReport').innerHTML = table;
+    }
+
+    function renderInsights() {
+      const { isSep2025, day } = todayInfo();
+      const opt = data.option; const tasks = options[opt].tasks; const times = options[opt].times;
+      const upto = (isSep2025 && day >= START_DAY) ? Math.min(day, END_DAY) : 0;
+
+      if (!upto) { document.getElementById('insights').innerHTML = '<div class="text-sm text-gray-500">Insights will appear after you log some days.</div>'; return; }
+
+      const expTotals = Array(times.length).fill(0);
+      const actTotals = Array(times.length).fill(0);
+      for (let d=START_DAY; d<=upto; d++){
+        const actuals = data.days[d] || times.map(()=>0);
+        for (let i=0;i<times.length;i++){
+          expTotals[i]+=times[i];
+          actTotals[i]+=actuals[i];
+        }
+      }
+
+      const overworked=[], underworked=[], balanced=[];
+      for (let i=0;i<times.length;i++){
+        const exp=expTotals[i], act=actTotals[i];
+        const ratio = exp>0? act/exp : 1;
+        if (ratio >= 1.2) overworked.push(`${tasks[i]} (+${((ratio-1)*100).toFixed(0)}%)`);
+        else if (ratio <= 0.8) underworked.push(`${tasks[i]} (${(ratio*100).toFixed(0)}%)`);
+        else balanced.push(`${tasks[i]} (~${(ratio*100).toFixed(0)}%)`);
+      }
+
+      const b = (title, items, color) => `
+        <div>
+          <div class="text-sm font-semibold ${color}">${title}</div>
+          <div class="mt-1 text-sm">${items.length? items.join(', ') : '—'}</div>
+        </div>`;
+
+      document.getElementById('insights').innerHTML = `
+        ${b('Overworked sectors (consider rebalancing):', overworked, 'text-rose-600')}
+        ${b('Underworked sectors (risk of neglect):', underworked, 'text-yellow-700')}
+        ${b('Balanced sectors (keep it up):', balanced, 'text-green-700')}
+        <div class="text-sm text-gray-600 pt-2">Reminder: All sectors need attention. Over-indexing on a few while ignoring others reduces compounded gains — rebalance tomorrow.</div>
+      `;
+    }
+
+    function renderAll(){
+      setHeroPills();
+      renderTodayInputs();
+      renderSummary();
+      renderGoalStatus();
+      renderDailyReport();
+      renderHistoricalReport();
+      renderInsights();
+    }
+
+    // ---------- INIT ----------
+    loadData();
+    initOptionRadios();
+    setHeroPills();
+    renderAll();
   </script>
 </body>
 </html>
