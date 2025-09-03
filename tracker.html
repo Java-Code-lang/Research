@@ -8,6 +8,38 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+/* put this AFTER your `data` and `options` variables in your main script */
+function downloadData() {
+  const lines = ['Goal Tracker Data: Sep 1 - Sep 30', `Selected Option: ${data.option===1?'Business Focus':'Job Search Focus'}`, ''];
+  const tasks = options[data.option].tasks;
+  const times = options[data.option].times;
+  let any=false;
+  for (let day=1; day<=30; day++) {
+    const actuals = data.days[day];
+    if (!actuals) continue;
+    any=true;
+    lines.push(`Day ${day} (Sep ${day}):`);
+    for (let i=0;i<tasks.length;i++){
+      const act = actuals[i] ?? 0;
+      const exp = times[i];
+      const pct = exp>0 ? (act/exp*100).toFixed(1) : '0.0';
+      lines.push(`  ${tasks[i]}: Expected ${exp} hrs, Actual ${act} hrs, Progress ${pct}%`);
+    }
+    lines.push('');
+  }
+  if (!any) lines.push('No data logged yet.');
+  const blob = new Blob([lines.join('\n')], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'goal_tracker_sep2025.txt';
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+/* ensure global (only needed if your app wraps code in modules/closures) */
+window.downloadData = downloadData;
+</script>
+
   <style>
     /* Subtle card shadow + smooth transitions */
     .card { @apply bg-white rounded-2xl shadow-md p-5 md:p-6; }
@@ -43,8 +75,16 @@
             <input type="checkbox" id="allowStorage" checked class="w-4 h-4 accent-blue-600" />
             <label for="allowStorage" class="text-sm">Allow Local Storage</label>
           </div>
+          <div class="fixed bottom-6 right-6 z-50">
+  <button onclick="downloadData()"
+          class="bg-gradient-to-r from-green-400 to-green-600 text-white px-5 py-3 rounded-2xl shadow-lg hover:scale-105 transform transition">
+    ⬇ Download All Progress
+  </button>
+</div>
+
         </div>
       </div>
+      
     </section>
 
     <!-- TODAY INPUT (auto-selected date; only today editable) -->
