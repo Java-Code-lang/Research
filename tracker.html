@@ -8,37 +8,92 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-/* put this AFTER your `data` and `options` variables in your main script */
+ <script>
 function downloadData() {
-  const lines = ['Goal Tracker Data: Sep 1 - Sep 30', `Selected Option: ${data.option===1?'Business Focus':'Job Search Focus'}`, ''];
+  const lines = [];
+  lines.push("Goal Tracker Data: Sep 1 - Sep 30");
+  lines.push(`Selected Option: ${data.option === 1 ? "Business Focus" : "Job Search Focus"}`);
+  lines.push("");
+
   const tasks = options[data.option].tasks;
   const times = options[data.option].times;
-  let any=false;
-  for (let day=1; day<=30; day++) {
+
+  let totalExp = 0, totalAct = 0;
+  const taskExp = Array(tasks.length).fill(0);
+  const taskAct = Array(tasks.length).fill(0);
+
+  let lastDayLogged = 0;
+
+  // Day by day details
+  for (let day = 1; day <= 30; day++) {
     const actuals = data.days[day];
     if (!actuals) continue;
-    any=true;
+    lastDayLogged = day;
+
     lines.push(`Day ${day} (Sep ${day}):`);
-    for (let i=0;i<tasks.length;i++){
-      const act = actuals[i] ?? 0;
+    for (let i = 0; i < tasks.length; i++) {
       const exp = times[i];
-      const pct = exp>0 ? (act/exp*100).toFixed(1) : '0.0';
+      const act = actuals[i] ?? 0;
+      const pct = exp > 0 ? (act / exp * 100).toFixed(1) : "0.0";
+
       lines.push(`  ${tasks[i]}: Expected ${exp} hrs, Actual ${act} hrs, Progress ${pct}%`);
+
+      totalExp += exp;
+      totalAct += act;
+      taskExp[i] += exp;
+      taskAct[i] += act;
     }
-    lines.push('');
+    lines.push("");
   }
-  if (!any) lines.push('No data logged yet.');
-  const blob = new Blob([lines.join('\n')], {type:'text/plain'});
+
+  if (lastDayLogged === 0) {
+    lines.push("No data logged yet.");
+  } else {
+    // Summary section
+    lines.push("========== SUMMARY ==========");
+    const overallPct = totalExp > 0 ? (totalAct / totalExp * 100).toFixed(1) : "0.0";
+    lines.push(`Overall Expected: ${totalExp} hrs`);
+    lines.push(`Overall Actual: ${totalAct} hrs`);
+    lines.push(`Overall Progress: ${overallPct}%`);
+
+    const daysLeft = 30 - lastDayLogged;
+    lines.push(`Days Logged: ${lastDayLogged}`);
+    lines.push(`Days Left until Sep 30: ${daysLeft}`);
+    lines.push("");
+
+    // Insights
+    lines.push("========== INSIGHTS ==========");
+    for (let i = 0; i < tasks.length; i++) {
+      const exp = taskExp[i];
+      const act = taskAct[i];
+      if (exp === 0) continue;
+
+      if (act === 0) {
+        lines.push(`❌ ${tasks[i]}: You have not worked on this at all so far.`);
+      } else if (act < exp) {
+        lines.push(`⚠️ ${tasks[i]}: You are behind (Expected ${exp} hrs, Actual ${act} hrs).`);
+      } else if (act > exp) {
+        lines.push(`⚡ ${tasks[i]}: You are overworking (Expected ${exp} hrs, Actual ${act} hrs).`);
+      } else {
+        lines.push(`✅ ${tasks[i]}: Perfectly on track.`);
+      }
+    }
+  }
+
+  // Download logic
+  const blob = new Blob([lines.join("\n")], { type: "text/plain" });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'goal_tracker_sep2025.txt';
-  document.body.appendChild(a); a.click(); a.remove();
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "goal_tracker_summary.txt";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
   URL.revokeObjectURL(url);
 }
-/* ensure global (only needed if your app wraps code in modules/closures) */
 window.downloadData = downloadData;
 </script>
+
 
   <style>
     /* Subtle card shadow + smooth transitions */
